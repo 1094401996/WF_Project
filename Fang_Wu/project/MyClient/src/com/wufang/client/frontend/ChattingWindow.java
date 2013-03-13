@@ -1,0 +1,109 @@
+package com.wufang.client.frontend;
+/**
+ * 
+ * @author Fang Wu
+ * 
+ */
+
+import javax.swing.*;
+
+import com.wufang.client.backend.ClientBackend;
+import com.wufang.client.backend.ClientThread;
+import com.wufang.client.utilities.ChattingWindowsManager;
+import com.wufang.client.utilities.ClientThreadsManager;
+import com.wufang.common.Info;
+import com.wufang.common.InfoType;
+
+import java.io.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.Date;
+
+public class ChattingWindow  extends JFrame{
+	JTextArea jta;
+	JTextField jtf;
+	JButton jb;
+	JPanel  jp;
+	String FriendID;
+	String MyID;
+	
+	 
+	public ChattingWindow(String friendID){
+		this.FriendID = friendID;
+		
+	}
+	public void creatChattingWindow(String myID){
+		jb = new JButton("send");
+		// add a listener on the "send" button....
+		jb.addActionListener(new SendActionListener());
+		jp = new JPanel();
+		jta = new JTextArea();
+		jtf = new JTextField(10);
+		jp.add(jb);
+		jp.add(jtf);
+		this.add(jta,"Center");
+		this.add(jp,"South");
+		this.setSize(400,300);
+		this.MyID = myID;
+		this.setTitle( MyID + " are talking with " + this.FriendID );
+		
+		this.addWindowListener(new WindowAdapter(){
+
+			@Override
+			public void windowClosing(WindowEvent e) {
+				ChattingWindowsManager cwm = ChattingWindowsManager.getInstance();
+				cwm.removeChattingWindow(MyID + " " + ChattingWindow.this.FriendID);
+				ChattingWindow.this.dispose();
+			}
+			
+		});
+		this.setVisible(true );
+		
+	}
+	// just save the chatting history..
+	private  void save_chat_histoy(Info in){
+		BufferedWriter bw;
+		try {
+			bw = new BufferedWriter(new FileWriter("Chat_history//" + ChattingWindow.this.MyID +"_" + ChattingWindow.this.FriendID,true));
+			String str = in.getSender() + " said to " + in.getReceiver() + " : " + in.getMessage() + " at " + in.getSendedtime() + System.getProperty("line.separator");
+			bw.write(str);
+			bw.flush();
+			bw.close();
+		} catch (IOException e) {
+		
+			e.printStackTrace();
+		}
+		
+	}
+	//show the message on the textarea and save the chatting message....
+	public void setjta(Info in){
+		String str = in.getSender() + " said to " + in.getReceiver() + " : " + in.getMessage() + " at " + in.getSendedtime()+ System.getProperty("line.separator");
+		this.jta.append(str );
+		save_chat_histoy(in);
+	}
+	
+	class SendActionListener implements ActionListener{
+		public void actionPerformed(ActionEvent e){
+			//when user click the send button , the message is sent out....
+			Info out = new Info();
+			out.setSender(ChattingWindow.this.MyID);
+			out.setReceiver(ChattingWindow.this.FriendID);
+			out.setMessage(ChattingWindow.this.jtf.getText());
+			out.setInfoType(InfoType.chatting_message);
+			out.setSendedtime(new Date().toString());
+			setjta(out);
+			try {
+				
+				ClientThreadsManager ctm = ClientThreadsManager.getInstance();
+				ClientThread ct = ctm.getClientThread(MyID);
+				ct.sendInfo(out);
+				ChattingWindow.this.jtf.setText("");
+				ChattingWindow.this.save_chat_histoy(out);
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			
+		}
+	}
+
+}

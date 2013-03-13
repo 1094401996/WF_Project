@@ -1,0 +1,78 @@
+package com.wufang.server.backend;
+/**
+ * 功能：是服务器和某个客户端的通信线程
+ * @author gengchen
+ *
+ */
+import java.net.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.io.*;
+
+import com.wufang.common.*;
+import com.wufang.server.utilities.SocketThreadsManager;
+public class SocketProcessThread extends Thread{
+	Socket s;
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+	}
+	public SocketProcessThread(Socket s){
+		//把服务器和该客户端的连接赋给s
+		this.s = s;
+	}
+	
+	private void sendInfo(Info out){
+		try {
+			ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
+			oos.writeObject(out);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	private Info receiveInfo(){
+		try {
+			ObjectInputStream ois = new ObjectInputStream(s.getInputStream());
+     		Info in = (Info)ois.readObject();
+     		return in;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	public void notify_All_someone_am_On(String usename){
+		SocketThreadsManager stm = SocketThreadsManager.getInstance();
+		ArrayList<SocketProcessThread> threads = stm.return_allThreads();
+		Iterator it = threads.iterator();
+		Info out = new Info();
+		out.setInfoType(InfoType.return_onlineFriends);
+		out.setMessage(usename);
+		while(it.hasNext()){
+			SocketProcessThread spt = (SocketProcessThread) it.next();
+			spt.sendInfo(out);
+		}
+	}
+	public void run(){
+		
+		SocketThreadsManager stm = SocketThreadsManager.getInstance();
+		while(true){
+			//该线程就可以接受客户端的信息
+			//System.out.println(in.getSender() + " is sending to " + in.getReceiver() +"the content is " + in.getMessage()  );
+			Info in = this.receiveInfo();
+			if(in.getInfoType().equals(InfoType.chatting_message)){
+				SocketProcessThread st = stm.getSocketThread(in.getReceiver());
+				st.sendInfo(in);
+			}else if(in.getInfoType().equals(InfoType.require_onlineFriends)){
+				System.out.println(in.getSender() + " 请求在线用户列表");
+				Info out = new Info();
+				out.setInfoType(InfoType.return_onlineFriends);
+				out.setReceiver(in.getSender());					
+				String str = stm.return_onlineFriends();
+				out.setMessage(str);
+				this.sendInfo(out);
+				System.out.println("服务器发送出在线用户列表" + " "+ str);
+			}
+		}
+	}
+
+}

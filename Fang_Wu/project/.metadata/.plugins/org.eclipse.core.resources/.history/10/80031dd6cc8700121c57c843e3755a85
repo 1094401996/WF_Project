@@ -1,0 +1,5 @@
+package com.wufang.client.utilities;
+
+public class FriendListsManager {
+
+}

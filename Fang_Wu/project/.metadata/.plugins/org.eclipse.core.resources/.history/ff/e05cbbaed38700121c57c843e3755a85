@@ -1,0 +1,81 @@
+package com.wufang.client.frontend;
+/**
+ * 
+ * @author Fang Wu
+ * 在你点击好友列表中的人，弹出一个聊天对话框
+ */
+
+import javax.swing.*;
+
+import com.wufang.client.backend.ClientBackend;
+import com.wufang.client.utilities.ClientThreadsManager;
+import com.wufang.common.Info;
+import java.io.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.Date;
+
+public class ChattingWindow  extends JFrame{
+	JTextArea jta;
+	JTextField jtf;
+	JButton jb;
+	JPanel  jp;
+	String FriendID;
+	String MyID;
+	
+	 
+	public static void main(String[] args) {
+//		new ChattingWindow("1").creatChattingWindow();
+	}
+	
+	public ChattingWindow(String friendID){
+		this.FriendID = friendID;
+	}
+	public void creatChattingWindow(String myID){
+		jb = new JButton("send");
+		jb.addActionListener(new SendActionListener());
+		jp = new JPanel();
+		jta = new JTextArea();
+		jtf = new JTextField(10);
+		jp.add(jb);
+		jp.add(jtf);
+//		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		this.add(jta,"Center");
+		this.add(jp,"South");
+		this.setSize(400,300);
+		this.MyID = myID;
+		this.setTitle( MyID + " are talking with " + this.FriendID );
+		this.setVisible(true );
+		
+	}
+	//写一个方法让他显示消息
+	public void setjta(Info in){
+		String str = in.getSender() + " said to " + in.getReceiver() + " : " + in.getMessage() + " at " + in.getSendedtime();
+		this.jta.append(str + System.getProperty("line.separator"));
+	}
+	
+	class SendActionListener implements ActionListener{
+		public void actionPerformed(ActionEvent e){
+			//当用户点击了发送按钮，就把信息发送出去，发的是个info对象
+			Info in = new Info();
+			in.setSender(ChattingWindow.this.MyID);
+			in.setReceiver(ChattingWindow.this.FriendID);
+			in.setMessage(ChattingWindow.this.jtf.getText());
+			in.setSendedtime(new Date().toString());
+			//发送给服务器 
+			try {
+				ClientThreadsManager ctm = ClientThreadsManager.getInstance();
+				ClientThead ct = ctm.getClientThread(MyID);
+				ChattingWindow.this.jtf.setText("");
+				ChattingWindow.this.jta.append(in.getSender() +" said to " + in.getReceiver() + " : " + in.getMessage() + " at " + in.getSendedtime() + System.getProperty("line.separator"));
+				
+			} catch (IOException e1) {
+				
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
+		}
+	}
+
+}

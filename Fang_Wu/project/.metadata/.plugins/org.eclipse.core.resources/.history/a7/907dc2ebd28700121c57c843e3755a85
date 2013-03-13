@@ -1,0 +1,62 @@
+package com.wufang.client.backend;
+/**
+ * 这是客户端和服务器端保持通信的线程
+ */
+import java.net.Socket;
+import java.io.*;
+
+import com.wufang.client.frontend.ChattingWindow;
+import com.wufang.client.frontend.FriendList;
+import com.wufang.client.utilities.ChattingWindowsManager;
+import com.wufang.client.utilities.ClientThreadsManager;
+import com.wufang.client.utilities.FriendListsManager;
+import com.wufang.common.Info;
+import com.wufang.common.InfoType;
+
+public class ClientThread extends Thread{
+
+	private  Socket s;
+	
+	public Socket getSocket(){
+		return this.s;
+	}
+	public  ClientThread(Socket s){
+		this.s = s;
+	}
+	
+	public void require_onlineFriends(String usename){
+		Info out = new Info();
+		out.setSender(usename);
+		out.setInfoType(InfoType.require_onlineFriends);
+		try {
+			ObjectOutputStream oos = new ObjectOutputStream(ClientThreadsManager.getClientThread(u.getUsername()).getSocket().getOutputStream());
+			oos.writeObject(out);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	public void run(){
+		while(true){
+			
+			try {
+				ObjectInputStream ois = new ObjectInputStream(s.getInputStream());
+				Info in = (Info)ois.readObject();
+				//System.out.println(in.getSender() + " said to " + in.getReceiver() + " : " + in.getMessage() + " at " + in.getSendedtime());
+				//把从服务器中读到的消息发送到该显示的聊天界面上
+				if(in.getInfoType().equals(InfoType.chatting_message)){
+					ChattingWindow cw = ChattingWindowsManager.getChattingWindow(in.getReceiver() + " " + in.getSender());
+					cw.setjta(in);
+				}else if(in.getInfoType().equals(InfoType.return_onlineFriends)){
+					String usename = in.getReceiver();
+					FriendList fl = FriendListsManager.getClientThread(usename);
+					fl.update_onlineFriends(in);
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+	}
+}

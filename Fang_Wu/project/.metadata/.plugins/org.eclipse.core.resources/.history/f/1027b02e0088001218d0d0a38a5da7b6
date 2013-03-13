@@ -1,0 +1,18 @@
+package com.wufang.client.backend;
+
+import com.wufang.common.Info;
+
+/**用户端 后台验证
+ * 
+ */
+public class ClientLoginVerify {
+
+	
+	public static void main(String[] args) {
+		
+	}
+	public boolean verifyUser(Info out){
+		return new ClientBackend().sendLoginInfo(out);
+	}
+
+}

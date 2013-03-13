@@ -1,0 +1,25 @@
+package com.wufang.client.utilities;
+import java.util.*;
+import com.wufang.client.frontend.*;
+public class ChattingWindowsManager {
+	private  HashMap hm = new HashMap<String, ChattingWindow>();
+	private static ChattingWindowsManager instance = null;
+	private ChattingWindowsManager(){
+		
+	}
+	public static ChattingWindowsManager getInstance(){
+		if (instance == null){
+			instance = new ChattingWindowsManager();
+		}
+		return instance;
+	}
+	
+	public static void addChattingWindow(String bothnames,ChattingWindow cw ){
+		hm.put(bothnames,cw);
+	}
+	public static ChattingWindow getChattingWindow(String bothnames ){
+		return (ChattingWindow)hm.get(bothnames);
+	}
+
+}
+

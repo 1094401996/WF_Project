@@ -1,0 +1,18 @@
+package com.wufang.server.backend;
+
+import java.util.*;
+public class SocketThreadManager {
+
+	private static HashMap<String,SocketProcessThread> Hash = new HashMap<String,SocketProcessThread>();
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+	}
+	public static void addSocketThread(String username,SocketProcessThread spt){
+		Hash.put(username,spt);
+	}
+	public static SocketProcessThread getSocketThread(String username){
+		return Hash.get(username);
+	}
+
+}

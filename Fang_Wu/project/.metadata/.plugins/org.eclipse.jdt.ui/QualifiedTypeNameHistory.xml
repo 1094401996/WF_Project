@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="com.wufang.client.utilities.FriendListsManager"/>
+<fullyQualifiedTypeName name="com.wufang.client.frontend.FriendList"/>
+<fullyQualifiedTypeName name="java.net.Socket"/>
+<fullyQualifiedTypeName name="java.util.ArrayList"/>
+<fullyQualifiedTypeName name="java.util.HashMap"/>
+<fullyQualifiedTypeName name="com.wufang.client.utilities.ClientThreadsManager"/>
+<fullyQualifiedTypeName name="com.wufang.common.Info"/>
+<fullyQualifiedTypeName name="com.wufang.common.InfoType"/>
+<fullyQualifiedTypeName name="com.wufang.client.utilities.ChattingWindowsManager"/>
+<fullyQualifiedTypeName name="com.wufang.client.backend.ClientThread"/>
+</qualifiedTypeNameHistroy>

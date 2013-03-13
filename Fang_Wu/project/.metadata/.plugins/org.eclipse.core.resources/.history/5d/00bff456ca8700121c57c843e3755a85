@@ -1,0 +1,5 @@
+package com.wufang.common;
+
+public interface InfoType {
+
+}
